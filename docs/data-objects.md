@@ -25,7 +25,7 @@ class MyObject extends DataObject {
 }
 ```
 
-**Note**: It is recommend to make a  `DataObject` immutable, as it purely represents data that will be send over the line.
+**Note**: It is recommend to make a `DataObject` immutable, as it purely represents data that will be send over the line.
 
 ## Registering a Data Object
 

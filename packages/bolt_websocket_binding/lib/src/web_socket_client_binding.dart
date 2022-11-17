@@ -54,4 +54,7 @@ class WebSocketClientBinding extends BoltBinding {
   void send(List<int> data, Address address) {
     _webSocket?.sink.add(data);
   }
+
+  @override
+  bool isAwareOff(Address address) => address == server;
 }

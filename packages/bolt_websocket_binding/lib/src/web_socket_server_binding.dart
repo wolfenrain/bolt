@@ -70,4 +70,7 @@ class WebSocketServerBinding extends BoltBinding {
     if (!_sockets.containsKey(address)) return;
     _sockets[address]!.add(data);
   }
+
+  @override
+  bool isAwareOff(Address address) => _sockets.containsKey(address);
 }

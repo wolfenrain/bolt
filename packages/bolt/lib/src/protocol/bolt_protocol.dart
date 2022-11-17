@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:async/async.dart';
 import 'package:bolt/bolt.dart';
 import 'package:bolt/src/utils/utils.dart';
+import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
 
 /// {@template bolt_protocol}
@@ -84,10 +85,12 @@ abstract class BoltProtocol {
     logger.detail('Sending $object to $address');
 
     final data = _serialize<T, V>(object, saltCheck: salt, address: address);
-    // TODO(wolfen): don't send to all bindings, send to the correct one.
-    for (final binding in _bindings) {
-      binding.send(data, address);
+
+    final binding = _bindings.firstWhereOrNull((b) => b.isAwareOff(address));
+    if (binding == null) {
+      return logger.warn('No binding found for $address');
     }
+    return binding.send(data, address);
   }
 
   final _packetsSendToAddress = <Address, SequenceBuffer<_SentPacketData>>{};

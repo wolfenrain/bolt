@@ -24,6 +24,8 @@ class UdpBinding extends BoltBinding {
 
   RawDatagramSocket? _udpSocket;
 
+  final Set<Address> _addresses = {};
+
   @override
   Future<void> bind() async {
     if (_udpSocket != null) return;
@@ -38,6 +40,7 @@ class UdpBinding extends BoltBinding {
         if (datagram == null) return;
 
         final address = Address(datagram.address.address, datagram.port);
+        _addresses.add(address);
         logger.detail('Received data from $address');
         _packetController.add(Packet(address, datagram.data));
       }
@@ -60,4 +63,7 @@ class UdpBinding extends BoltBinding {
       address.port,
     );
   }
+
+  @override
+  bool isAwareOff(Address address) => _addresses.contains(address);
 }

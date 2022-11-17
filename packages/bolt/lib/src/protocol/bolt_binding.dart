@@ -24,4 +24,10 @@ abstract class BoltBinding {
 
   /// Send [data] to [address].
   void send(List<int> data, Address address);
+
+  /// Whether the binding is aware of [address].
+  ///
+  /// This is used to determine if a packet should be sent to [address] or not
+  /// through this binding.
+  bool isAwareOff(Address address);
 }
