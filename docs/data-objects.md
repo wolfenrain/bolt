@@ -34,7 +34,6 @@ Once you have defined a `DataObject` you can register it, this has to happen on 
 First add a static `register` method to the data object:
 
 ```dart
-
 class MyObject extends DataObject {
   ...
 
