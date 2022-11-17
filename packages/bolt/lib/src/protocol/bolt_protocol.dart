@@ -87,9 +87,7 @@ abstract class BoltProtocol {
     final data = _serialize<T, V>(object, saltCheck: salt, address: address);
 
     final binding = _bindings.firstWhereOrNull((b) => b.isAwareOff(address));
-    if (binding == null) {
-      return logger.warn('No binding found for $address');
-    }
+    if (binding == null) return;
     return binding.send(data, address);
   }
 

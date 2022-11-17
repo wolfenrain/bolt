@@ -39,7 +39,7 @@ class UdpBinding extends BoltBinding {
         final datagram = _udpSocket!.receive();
         if (datagram == null) return;
 
-        final address = Address(datagram.address.address, datagram.port);
+        final address = Address(datagram.address.host, datagram.port);
         _addresses.add(address);
         logger.detail('Received data from $address');
         _packetController.add(Packet(address, datagram.data));
@@ -65,5 +65,18 @@ class UdpBinding extends BoltBinding {
   }
 
   @override
-  bool isAwareOff(Address address) => _addresses.contains(address);
+  bool isAwareOff(Address address) {
+    // If the list of addresses is empty, we assume that we are the client and
+    // that we are aware of the server.
+    if (_addresses.isEmpty) return true;
+
+    // If the host is '0.0.0.0' we should also check the localhost address.
+    // This is because if the host is 'localhost' the UDP socket will report the
+    // address as '127.0.0.1' and not '0.0.0.0'.
+    if (address.host == '0.0.0.0') {
+      final localVersion = Address('127.0.0.1', address.port);
+      return _addresses.contains(localVersion) || _addresses.contains(address);
+    }
+    return _addresses.contains(address);
+  }
 }
