@@ -61,6 +61,12 @@ abstract class BoltServer extends BoltProtocol {
     return _findExistingConnection(address)?.salt ?? 0;
   }
 
+  /// Called when a connection is connected to the server.
+  void onConnected(Connection connection) {}
+
+  /// Called when a connection is disconnected from the server.
+  void onDisconnected(Connection connection) {}
+
   /// Sends [data] to a [connection].
   @mustCallSuper
   void send<T extends DataObject, V extends DataResolver<T>>(
@@ -161,7 +167,6 @@ abstract class BoltServer extends BoltProtocol {
     for (var i = 0; i < 10; i++) {
       send(Disconnect(), connection);
     }
-    _disconnectedController.add(connection);
     _cleanupConnection(connection);
   }
 
@@ -259,6 +264,7 @@ abstract class BoltServer extends BoltProtocol {
       _connectionTimeout(connection);
       logger.detail('$connection connected');
       _connectedController.add(connection);
+      onConnected(connection);
     } else {
       connectionId = _connections.indexOf(connection);
     }
@@ -270,7 +276,6 @@ abstract class BoltServer extends BoltProtocol {
   }
 
   void _disconnect(Message<Disconnect> message) {
-    _disconnectedController.add(message.connection);
     _cleanupConnection(message.connection);
   }
 
@@ -288,6 +293,9 @@ abstract class BoltServer extends BoltProtocol {
     if (index != -1) {
       _connections[index] = null;
       _confirmedConnections[index] = false;
+
+      _disconnectedController.add(connection);
+      onDisconnected(connection);
     }
   }
 
