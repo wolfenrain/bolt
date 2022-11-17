@@ -20,273 +20,102 @@ Bolt is split into two parts, the `BoltClient` and the `BoltServer`. They both i
  
 Everything is abstracted away in these classes, this means that you can implement your own abstraction on top of Bolt by just extending from `BoltClient` and `BoltServer`.
 
-Currently the `BoltProtocol` is using UDP as it's network transfer protocol but in the future will be abstracted to allow for other protocols.
+Bolt works on the principal of shared code, this means that you write common code that is shared between both server and client. 
 
-## Installation 💻
+**Note**: Currently the `BoltProtocol` is using UDP as it's network transfer protocol but in the future will be abstracted to allow for other protocols.
 
-**❗ In order to start using Bolt you must have the [Dart SDK][dart_install_link] installed on your machine.**
+## Documentation 📝
+
+For documentation about Bolt, see the [docs](https://github.com/wolfenrain/bolt/tree/main/docs) section.
+
+An example of Bolt can be found in the [example](https://github.com/wolfenrain/bolt/tree/main/example) directory.
+
+## Quick Start 🚀
+
+### Prerequisites 📝
+
+In order to start using Bolt you must have the [Dart SDK][dart_install_link] installed on your machine.
+
+### Installing 🧑‍💻
 
 Add `bolt` to your `pubspec.yaml`:
 
-```yaml
-dependencies:
-  bolt:
-```
-
-Install it:
-
 ```sh
-dart pub get
+# 📦 Install bolt from pub.dev
+dart pub add bolt
 ```
 
-## Usage
+### Creating a shared Data Object 💿
 
-Bolt works on the principal of shared code, both client and server will have to register the same data objects and other features to ensure correct communication. 
-
-### Data Objects
-
-Data objects represent the data that is sent over the line from one side to the other. They are strongly typed instances and are often used as a form of messages between two sides.
-
-#### Defining a Data Object
-
-Defining custom data objects is easy, you extends from the `DataObject` class and define what arguments and fields your class has. You also have to define a `DataResolver` that implements your class. It will help you resolve the data when serializing from and to binary data.
+Create a shared Data Object for the client and server:
 
 ```dart
-import 'package:bolt/bolt.dart';
+class Ping extends DataObject {
+  const Ping(this.timestamp);
 
-class MyObject extends DataObject {
-  const MyObject(
-    this.someValue, {
-    required this.someOtherValue,
-  });
-
-  final int someValue
-
-  final double someOtherValue;
+  final int timestamp;
 
   @override
-  List<Object?> get props => [someValue, someOtherValue];
+  List<Object?> get props => [timestamp];
 
   static void register(BoltRegistry registry) {
-    registry.register(100, MyObject.new, _Resolver.new);
+    registry.register(100, Ping.new, _Resolver.new);
   }
 }
 
-class _Resolver extends DataResolver<MyObject> implements MyObject {
+class _Resolver extends DataResolver<Ping> implements Ping {
   _Resolver(super.data);
 
-  dynamic positionalArgument(int index) {
-    switch(index) {
-      case 0:
-        return data.someValue;
-    }
-  }
-
   @override
-  dynamic namedArgument(Symbol name) {
-    switch (name) {
-      case #someOtherValue:
-        return data.someOtherValue;
+  dynamic positionalArgument(int index) {
+    switch (index) {
+      case 0:
+        return data.timestamp;
     }
   }
 }
+
 ```
 
-**Note**: If your data object has nullable values or a `List` of values, Bolt will automatically serialize and deserialize that for you.
+### Creating a Server 🏁
 
-#### Registering a Data Object
-
-Once you have defined a `DataObject` you can register it, this has to happen on both the client and server side using the same object id. In the above example we already defined a static `register` method to help with this. Lets register them to our client and server instances:
+Define a server, register the data object and listen to messages:
 
 ```dart
-class ExampleClient extends BoltClient {
-  ExampleClient(super.address, {super.server});
-
-  ...
-}
-
-Future<void> main() async {
-  final client = ExampleClient(...);
-  MyObject.register(client.registry);
-  
-  ...
-}
-```
-
-```dart
-
 class ExampleServer extends BoltServer {
-  ExampleServer(super.address);
+  ExampleServer(super.address) {
+    Ping.register(registry);
+
+    on(_onPinged);
+  }
+
+  void _onPinged(Message<Ping> message) {
+    // Do something on ping ...
+  }
 
   @override
   Future<bool> verifyAuth(Connection connection, String token) async {
-    ...
+    return token == 'super_secure_token';
   }
 }
-
-
-Future<void> main() async {
-  final server = ExampleServer(...);
-  MyObject.register(server.registry);
-  
-  ...
-}
 ```
 
-We can now, emit our `MyObject` over the line and both the client and server will be able to properly serialize the data.
+### Creating a Client ✨
 
-#### Listening to Data Objects
-
-Both the client and server can listen to data objects, the client listens directly to the type while the server listens to a `Message` version of it, which contains the connection that send the `DataObject`.
-
-Both the client and server expose an `on` and `off` method to register handlers for a given `DataObject`:
+Define the client, register the data objects and implement the `onConnected` method:
 
 ```dart
-Future<void> main() async {
-  final client = ExampleClient(...);
-
-  ...
-
-  client.on(_onMyObject);
-
-  ...
-
-  await client.connect('super_secure_token');
-}
-
-void _onMyObject(MyObject object) {
-  print('Received: ${object}');
-}
-```
-
-```dart
-Future<void> main() async {
-  final server = ExampleServer(...);
-
-  ...
-
-  server.on(_onMyObject);
-
-  ...
-
-  await server.start();
-  
-}
-
-void _onMyObject(Message<MyObject> message) {
-  print('Received: ${message.data} from ${message.connection}');
-}
-```
-
-Bolt also handles acknowledgements for `DataObjects` automatically, you can register handlers by using the `onAck` and `offAck` methods. Whenever the other side acknowledged a message that you emitted it will trigger your handler for that data object type.
-
-### Payload Types
-
-Sometimes you want to send more over than just the the primitive types, maybe you want to send over a custom class? This is where payload types come in.
-
-A `PayloadType` is concept that comes from [Binarize](https://pub.dev/packages/binarize) and it basically defines how to serialize and deserialize a type to binary and back.
-
-#### Defining a Payload Type
-
-Let's define a payload type for a simple class:
-
-```dart
-class MySimpleClass {
-  MySimpleClass(this.aString, this.anInt, this.aDouble);
-
-  final String aString;
-
-  final int anInt;
-
-  final double aDouble;
-}
-```
-
-We want to pack this class into binary and also unpack it from binary, so we define a custom payload type:
-
-```dart
-import 'package:bolt/bolt.dart';
-
-class _MySimpleClass extends PayloadType<MySimpleClass> {
-  const _MySimpleClass();
-
-  @override
-  int length(MySimpleClass value) =>
-      string16.length(value.aString) +
-      int32.length(value.anInt) +
-      float32.length(value.aDouble);
-
-  @override
-  MySimpleClass get(ByteData data, int offset) {
-    var currentOffset = offset;
-
-    final aString = string16.get(data, currentOffset);
-    currentOffset += string16.length(aString);
-
-    final anInt = int32.get(data, currentOffset);
-    currentOffset += int32.length(anInt);
-
-    final aDouble = float32.get(data, currentOffset);
-    currentOffset += float32.length(aDouble);
-
-    return MySimpleClass(aString, anInt, aDouble);
+class ExampleClient extends BoltClient {
+  ExampleClient(super.address, {super.server}) {
+    Ping.register(registry);
   }
 
   @override
-  void set(MySimpleClass value, ByteData data, int offset) {
-    var currentOffset = offset;
-
-    string16.set(value.aString, data, currentOffset);
-    currentOffset += string16.length(value.aString);
-
-    int32.set(value.anInt, data, currentOffset);
-    currentOffset += int32.length(value.anInt);
-
-    float32.set(value.aDouble, data, currentOffset);
-    currentOffset += float32.length(value.aDouble);
+  void onConnected() {
+    send(Ping(DateTime.now().millisecondsSinceEpoch));
   }
 }
-
-const mySimpleClass = _MySimpleClass();
 ```
-
-We now have a `mySimpleClass` variable that we can use to pack and unpack our `MySimpleClass` instances.
-
-#### Registering a Payload Type
-
-Just like the `DataObject` we can register payload types to Bolt through the `BoltRegistry`, both the client and server need to register it to be able to serialize the data:
-
-```dart
-...
-
-Future<void> main() async {
-  final client = ExampleClient(...);
-
-  ...
-
-  mySimpleClass.register(client.registry);
-  
-  ...
-}
-```
-
-```dart
-...
-
-Future<void> main() async {
-  final server = ExampleServer(...);
-  
-  ...
-
-  mySimpleClass.register(server.registry);
-  
-  ...
-}
-```
-
-And now Bolt knows about our custom class and will use our payload type to serialize it into binary and back whenever it is part of a `DataObject`.
-
-**Note**: You can also pass different payload types to `BoltRegistry.register`, to either add or overwrite payload types for certain value types.
 
 [dart_install_link]: https://dart.dev/get-dart
 [license_badge]: https://img.shields.io/badge/license-MIT-blue.svg

@@ -1,5 +1,5 @@
 name: bolt
-description: Lightning fast, strongly typed network protocol
+description: Bolt, a lightning fast, strongly typed network protocol
 repository: https://github.com/wolfenrain/bolt
 version: 0.1.0-dev.1
 
