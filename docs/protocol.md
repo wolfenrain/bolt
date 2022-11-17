@@ -8,6 +8,14 @@ The Bolt Protocol would never have existed without detailed articles and documen
 - [Glenn Fiedler](https://gafferongames.com/)
 - [Unreal Networking Architecture](https://docs.unrealengine.com/udk/Three/NetworkingOverview.html)
 
+## Bindings
+
+By default Bolt does not know about what kind of underlying communication protocol you are using to transfer data, instead it expects that you, the developer, provide implementations of the `BoltBinding` class to both the `BoltServer` and the `BoltClient`.
+
+This allows Bolt to theoretically run on top of any communication protocol like UDP, TCP, WebSockets and whatever else allows for bi-directional communication. 
+
+These bindings allow Bolt to be structured in such a way that a `BoltServer` can receive `n` amount of bindings and communicate with any client that connects with a corresponding client. In short this means that if a `BoltServer` has both a UDP and WebSockets binding attached it can receive data from a `BoltClient` that uses UDP and a `BoltClient` that uses WebSockets without needing any further setup from the developer.
+
 ## Connection between Client and Server
 
 TODO(wolfen): describe this in detail with graphs

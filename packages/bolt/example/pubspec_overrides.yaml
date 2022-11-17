@@ -1,0 +1,5 @@
+dependency_overrides:
+  bolt:
+    path: ../
+  bolt_udp_binding:
+    path: ../..//bolt_udp_binding

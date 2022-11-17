@@ -22,37 +22,43 @@ class MyObject extends DataObject {
 
   @override
   List<Object?> get props => [someValue, someOtherValue];
-
-  static void register(BoltRegistry registry) {
-    registry.register(100, MyObject.new, _Resolver.new);
-  }
-}
-
-class _Resolver extends DataResolver<MyObject> implements MyObject {
-  _Resolver(super.data);
-
-  dynamic positionalArgument(int index) {
-    switch(index) {
-      case 0:
-        return data.someValue;
-    }
-  }
-
-  @override
-  dynamic namedArgument(Symbol name) {
-    switch (name) {
-      case #someOtherValue:
-        return data.someOtherValue;
-    }
-  }
 }
 ```
 
-**Note**: If your data object has nullable values or a `List` of values, Bolt will automatically serialize and deserialize that for you.
+**Note**: It is recommend to make a  `DataObject` immutable, as it purely represents data that will be send over the line.
 
 ## Registering a Data Object
 
-Once you have defined a `DataObject` you can register it, this has to happen on both the client and server side using the same object id. In the above example we already defined a static `register` method to help with this. Lets register them to our client and server instances:
+Once you have defined a `DataObject` you can register it, this has to happen on both the client and server side using the same object id. Lets register the data object that we defined just now to both the client and server instances.
+
+First add a static `register` method to our data object:
+
+```dart
+
+class MyObject extends DataObject {
+  ...
+
+  static void register(BoltRegistry registry) {
+    registry.registerObject(
+      100,
+      DataResolver<MyObject>(MyObject.new, [
+        Argument.positional<MyObject, int>((d) => d.someValue, type: uint32),
+        Argument.named<MyObject, double>(
+          (d) => d.someOtherValue, 
+          type: float32, 
+          name: #someOtherValue
+        ),
+      ]),
+    );
+  }
+
+  ...
+}
+```
+
+By defining a `DataResolver` for the `DataObject` we can map each argument on the constructor to an `Argument` instance. An `Argument` main purpose is to retrieve the value of a field, tell the resolver what payload type should be used for serialization and if it is named argument. The name should match the argument name on the constructor.
+
+Now that we have a common method for registering the data object, lets call it for both the client and the server:
 
 ```dart
 class ExampleClient extends BoltClient {
@@ -63,8 +69,8 @@ class ExampleClient extends BoltClient {
 
 Future<void> main() async {
   final client = ExampleClient(...);
-  MyObject.register(client.registry);
   
+  MyObject.register(client.registry);
   ...
 }
 ```
@@ -81,10 +87,9 @@ class ExampleServer extends BoltServer {
 
 Future<void> main() async {
   final server = ExampleServer(...);
+
   MyObject.register(server.registry);
   
   ...
 }
 ```
-
-The `MyObject` class is now registered to our client and server and can be emitted and received over the line.
