@@ -56,6 +56,12 @@ abstract class BoltClient extends BoltProtocol {
   @override
   int retrieveSalt(Address address) => _salt;
 
+  /// Called when the client is connected to the server.
+  void onConnected() {}
+
+  /// Called when the client is disconnected from the server.
+  void onDisconnected() {}
+
   /// Sends [data] to the [server].
   @mustCallSuper
   void send<T extends DataObject>(T data) => rawSend(data, server, _salt);
@@ -203,6 +209,8 @@ abstract class BoltClient extends BoltProtocol {
 
     // Add listeners for the rest of the connection.
     on(_disconnect);
+
+    onConnected();
   }
 
   void _connectionDenied(ConnectionDenied data) {
@@ -229,6 +237,8 @@ abstract class BoltClient extends BoltProtocol {
     off(_challenge);
     off(_connectionAccepted);
     off(_connectionDenied);
+
+    onDisconnected();
   }
 }
 
