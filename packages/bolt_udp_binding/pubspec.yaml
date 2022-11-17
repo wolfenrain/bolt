@@ -1,5 +1,5 @@
 name: bolt_udp_binding
-description: Provides bi-directional UDP binding for Bolt
+description: Provides bi-directional UDP Bindings for Bolt
 version: 0.1.0-dev.1
 publish_to: none
 

@@ -1,5 +1,5 @@
 name: bolt_websocket_binding
-description: Provides bi-directional WebSocket bindings for Bolt
+description: Provides bi-directional WebSocket Bindings for Bolt
 version: 0.1.0-dev.1
 publish_to: none
 

@@ -1,15 +1,15 @@
 import 'package:bolt/bolt.dart';
 import 'package:bolt/client.dart';
-import 'package:bolt_udp_binding/bolt_udp_binding.dart';
+import 'package:bolt_websocket_binding/bolt_websocket_binding.dart';
 import 'package:example/example.dart';
 
 class ExampleClient extends BoltClient {
   ExampleClient(
-    Address address, {
+    Address server, {
     super.logger,
   }) : super(
-          binding: UdpBinding(address, logger: logger),
-          server: const Address('0.0.0.0', 5555),
+          binding: WebSocketClientBinding(server, logger: logger),
+          server: server,
         ) {
     Ping.register(registry);
     Pong.register(registry);
@@ -38,7 +38,7 @@ class ExampleClient extends BoltClient {
 }
 
 Future<void> main() async {
-  final client = ExampleClient(const Address('0.0.0.0', 7777));
+  final client = ExampleClient(const Address('0.0.0.0', 5556));
   await client.connect('super_secure_token');
 
   client.logger.info('Client started!');

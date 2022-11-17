@@ -1,13 +1,19 @@
 import 'package:bolt/bolt.dart';
 import 'package:bolt/server.dart';
 import 'package:bolt_udp_binding/bolt_udp_binding.dart';
+import 'package:bolt_websocket_binding/bolt_websocket_binding.dart';
 import 'package:example/example.dart';
 
 class ExampleServer extends BoltServer {
   ExampleServer(
-    Address address, {
+    String host, {
     super.logger,
-  }) : super(bindings: [UdpBinding(address, logger: logger)]) {
+  }) : super(
+          bindings: [
+            UdpBinding(Address(host, 5555), logger: logger),
+            WebSocketServerBinding(Address(host, 5556), logger: logger)
+          ],
+        ) {
     Ping.register(registry);
     Pong.register(registry);
 
@@ -36,7 +42,7 @@ class ExampleServer extends BoltServer {
 }
 
 Future<void> main() async {
-  final server = ExampleServer(const Address('0.0.0.0', 5555));
+  final server = ExampleServer('0.0.0.0');
   await server.start();
 
   server.logger.info('Server started!');

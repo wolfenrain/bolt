@@ -2,7 +2,7 @@
 <img src="https://raw.githubusercontent.com/wolfenrain/bolt/main/assets/bolt_full.png" height="320" alt="bolt logo" />
 </p>
 
-<h1 align="center">Provides bi-directional UDP binding for Bolt</h1>
+<h1 align="center">Provides bi-directional UDP Bindings for Bolt</h1>
 
 <p align="center">
 <a href="https://github.com/wolfenrain/bolt/tree/main/packages/bolt_udp_binding"><img src="https://img.shields.io/pub/v/bolt_udp_binding.svg" alt="pub package"></a>
@@ -18,7 +18,7 @@
 
 ### Prerequisites 📝
 
-In order to start using the WebSocket bindings for Bolt you must have the [Dart SDK][dart_install_link] installed on your machine.
+In order to start using the UDP bindings for Bolt you must have the [Dart SDK][dart_install_link] installed on your machine.
 
 ### Installing 🧑‍💻
 
@@ -65,6 +65,7 @@ class ExampleClient extends BoltClient {
   }) : super(binding: UdpBinding(server, logger: logger));
 
   ...
+
 }
 ```
 

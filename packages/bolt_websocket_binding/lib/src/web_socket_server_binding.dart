@@ -19,7 +19,7 @@ class WebSocketServerBinding extends BoltBinding {
   final Address address;
 
   @override
-  Stream<Packet<List<int>>> get packets => _packetController.stream;
+  Stream<Packet<List<int>>> get rawPackets => _packetController.stream;
   final StreamController<Packet<List<int>>> _packetController;
 
   HttpServer? _server;

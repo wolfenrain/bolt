@@ -1,4 +1,4 @@
-/// Provides bi-directional WebSocket bindings for Bolt
+/// Provides bi-directional WebSocket Bindings for Bolt
 library bolt_websocket_binding;
 
 export 'src/web_socket_client_binding.dart';

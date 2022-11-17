@@ -18,12 +18,12 @@ abstract class BoltProtocol {
     this.protocolVersion = 1,
     required List<BoltBinding> bindings,
   })  : _bindings = bindings,
-        _objectsController = StreamController.broadcast(),
+        _packetsController = StreamController.broadcast(),
         _acknowledgedPacketController = StreamController.broadcast(),
         logger = logger ?? Logger() {
-    objects = _objectsController.stream;
-    acknowledgedObjects = _acknowledgedPacketController.stream;
-    _packets = StreamGroup.merge(_bindings.map((b) => b.packets));
+    packets = _packetsController.stream;
+    acknowledgedPackets = _acknowledgedPacketController.stream;
+    _rawPackets = StreamGroup.merge(_bindings.map((b) => b.rawPackets));
   }
 
   /// The registry that holds all the data objects serializers and payload
@@ -37,18 +37,18 @@ abstract class BoltProtocol {
   /// server are compatible.
   final int protocolVersion;
 
-  /// Stream of data objects received from the other end.
-  late final Stream<Packet<DataObject>> objects;
-  final StreamController<Packet<DataObject>> _objectsController;
+  /// Stream of packets received from the other end.
+  late final Stream<Packet<DataObject>> packets;
+  final StreamController<Packet<DataObject>> _packetsController;
 
-  /// Stream of data objects that were acknowledged by the other end.
-  late final Stream<Acknowledged<DataObject>> acknowledgedObjects;
+  /// Stream of packets that were acknowledged by the other end.
+  late final Stream<Acknowledged<DataObject>> acknowledgedPackets;
   final StreamController<Acknowledged<DataObject>>
       _acknowledgedPacketController;
 
   final List<BoltBinding> _bindings;
 
-  late final Stream<Packet<List<int>>> _packets;
+  late final Stream<Packet<List<int>>> _rawPackets;
   StreamSubscription<Packet<List<int>>>? _packetsSubscription;
 
   /// The salt to use for a packet sent to [address].
@@ -58,11 +58,11 @@ abstract class BoltProtocol {
   Future<void> bind() async {
     await Future.wait(_bindings.map((b) => b.bind()));
 
-    _packetsSubscription = _packets.listen((packet) {
+    _packetsSubscription = _rawPackets.listen((packet) {
       final data = _deserialize(packet.data, address: packet.address);
       if (data == null) return;
       logger.detail('Received data: $data from ${packet.address}');
-      _objectsController.add(Packet(packet.address, data));
+      _packetsController.add(Packet(packet.address, data));
     });
   }
 
@@ -84,7 +84,7 @@ abstract class BoltProtocol {
     logger.detail('Sending $object to $address');
 
     final data = _serialize<T, V>(object, saltCheck: salt, address: address);
-    // TODO: don't send to all bindings, send to the correct one.
+    // TODO(wolfen): don't send to all bindings, send to the correct one.
     for (final binding in _bindings) {
       binding.send(data, address);
     }

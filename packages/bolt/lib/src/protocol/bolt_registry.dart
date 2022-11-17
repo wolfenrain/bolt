@@ -2,7 +2,7 @@ import 'package:bolt/bolt.dart';
 import 'package:bolt/src/protocol/data_objects/data_objects.dart';
 
 /// {@template bolt_registry}
-/// A registry for [DataSerializer]s, [DataObject]s, and [PayloadType]s.
+/// A registry for [DataResolver]s.
 /// {@endtemplate}
 class BoltRegistry {
   /// {@macro bolt_registry}

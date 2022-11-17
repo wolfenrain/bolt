@@ -107,7 +107,7 @@ abstract class BoltServer extends BoltProtocol {
   /// connection.
   void on<T extends DataObject>(MessageHandler<Message<T>> handler) {
     _subscriptions.add(
-      objects.where((packet) => packet.data is T).map((packet) {
+      packets.where((packet) => packet.data is T).map((packet) {
         final connection = _findExistingConnection(packet.address) ??
             Connection(clientSalt: 0, serverSalt: 0, address: packet.address);
 
@@ -128,7 +128,7 @@ abstract class BoltServer extends BoltProtocol {
     MessageHandler<AcknowledgedMessage<T>> handler,
   ) {
     _ackSubscriptions.add(
-      acknowledgedObjects.where((ack) => ack.object is T).map((ack) {
+      acknowledgedPackets.where((ack) => ack.object is T).map((ack) {
         final connection = _findExistingConnection(ack.address) ??
             Connection(clientSalt: 0, serverSalt: 0, address: ack.address);
         return AcknowledgedMessage<T>(connection, ack.cast<T>());
@@ -178,7 +178,7 @@ abstract class BoltServer extends BoltProtocol {
   Future<void> start() async {
     await bind();
 
-    objects.listen((packet) {
+    packets.listen((packet) {
       final connection = _findExistingConnection(packet.address) ??
           Connection(clientSalt: 0, serverSalt: 0, address: packet.address);
       if (_connectionTimers[connection] != null) {

@@ -1,6 +1,8 @@
 import 'package:bolt/bolt.dart';
 
 /// {@template bolt_binding}
+/// Defines a communication protocol for Bolt. This is used to define through
+/// which protocol packets are sent and received.
 /// {@endtemplate}
 abstract class BoltBinding {
   /// {@macro bolt_binding}
@@ -11,8 +13,8 @@ abstract class BoltBinding {
   /// The logger to use.
   final Logger logger;
 
-  /// Stream of packets received by the other end.
-  Stream<Packet<List<int>>> get packets;
+  /// Stream of raw packets received by the other end.
+  Stream<Packet<List<int>>> get rawPackets;
 
   /// Bind the binding.
   Future<void> bind();

@@ -2,4 +2,6 @@ dependency_overrides:
   bolt:
     path: ../
   bolt_udp_binding:
-    path: ../..//bolt_udp_binding
+    path: ../../bolt_udp_binding
+  bolt_websocket_binding:
+    path: ../../bolt_websocket_binding

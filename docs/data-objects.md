@@ -29,9 +29,9 @@ class MyObject extends DataObject {
 
 ## Registering a Data Object
 
-Once you have defined a `DataObject` you can register it, this has to happen on both the client and server side using the same object id. Lets register the data object that we defined just now to both the client and server instances.
+Once you have defined a `DataObject` you can register it, this has to happen on both the client and server side using the same object id. Lets register the data object that we defined to both the client and server instances.
 
-First add a static `register` method to our data object:
+First add a static `register` method to the data object:
 
 ```dart
 

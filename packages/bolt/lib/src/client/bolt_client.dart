@@ -72,7 +72,7 @@ abstract class BoltClient extends BoltProtocol {
   /// Registers a callback for when a [DataObject] of type [T] is received.
   void on<T extends DataObject>(void Function(T data) callback) {
     _subscriptions.add(
-      objects
+      packets
           .where((packet) => packet.data is T)
           .map((packet) => packet.data as T)
           .listen(callback),
@@ -85,7 +85,7 @@ abstract class BoltClient extends BoltProtocol {
     void Function(Acknowledged<T> data) callback,
   ) {
     _ackSubscriptions.add(
-      acknowledgedObjects
+      acknowledgedPackets
           .where((ack) => ack.object is T)
           .map((ack) => ack.cast<T>())
           .listen(callback),
@@ -147,7 +147,7 @@ abstract class BoltClient extends BoltProtocol {
     await bind();
     _clientSalt = generateSalt();
 
-    objects.listen((packet) {
+    packets.listen((packet) {
       _connectionTimeout?.cancel();
       _connectionTimeout = Timer(const Duration(seconds: 5), () {
         logger.detail('Connection timed out');

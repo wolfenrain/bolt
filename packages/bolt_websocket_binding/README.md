@@ -2,7 +2,7 @@
 <img src="https://raw.githubusercontent.com/wolfenrain/bolt/main/assets/bolt_full.png" height="320" alt="bolt logo" />
 </p>
 
-<h1 align="center">Bolt bi-directional WebSocket Binding</h1>
+<h1 align="center">Provides bi-directional WebSocket Bindings for Bolt</h1>
 
 <p align="center">
 <a href="https://github.com/wolfenrain/bolt/tree/main/packages/bolt_websocket_binding"><img src="https://img.shields.io/pub/v/bolt_websocket_binding.svg" alt="pub package"></a>
@@ -65,6 +65,7 @@ class ExampleClient extends BoltClient {
   }) : super(binding: WebSocketClientBinding(server, logger: logger));
 
   ...
+
 }
 ```
 

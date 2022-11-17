@@ -65,7 +65,7 @@ Define a server, register the data object and listen to messages:
 
 ```dart
 class ExampleServer extends BoltServer {
-  ExampleServer(super.address) {
+  ExampleServer(super.address, {required super.bindings}) {
     Ping.register(registry);
 
     on(_onPinged);
@@ -88,7 +88,7 @@ Define the client, register the data object and implement the `onConnected` meth
 
 ```dart
 class ExampleClient extends BoltClient {
-  ExampleClient(super.address, {super.server}) {
+  ExampleClient(super.address, {super.server, required super.binding}) {
     Ping.register(registry);
   }
 
