@@ -37,7 +37,7 @@ dart pub add bolt
 
 ### Creating a shared Data Object 💿
 
-Create a shared Data Object for the client and server:
+Create a shared `DataObject` for the client and server:
 
 ```dart
 class Ping extends DataObject {
