@@ -1,7 +1,7 @@
 name: bolt_udp_binding
 description: Provides bi-directional UDP Bindings for Bolt
-version: 0.1.0-dev.1
-publish_to: none
+repository: https://github.com/wolfenrain/bolt
+version: 0.1.0-dev.2
 
 environment:
   sdk: ">=2.18.0 <3.0.0"
