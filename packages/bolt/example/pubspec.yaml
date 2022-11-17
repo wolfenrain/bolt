@@ -1,0 +1,14 @@
+name: example
+description: Example for the Bolt package
+publish_to: none
+
+environment:
+  sdk: ">=2.18.0 <3.0.0"
+
+dependencies:
+  bolt: ^0.1.0-dev.1
+  bolt_udp_binding: ^0.1.0-dev.1
+  bolt_websocket_binding: ^0.1.0-dev.1
+
+dev_dependencies:
+  very_good_analysis: ^3.1.0

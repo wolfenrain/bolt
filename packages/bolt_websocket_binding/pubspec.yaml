@@ -1,0 +1,16 @@
+name: bolt_websocket_binding
+description: Provides bi-directional WebSocket Bindings for Bolt
+version: 0.1.0-dev.1
+publish_to: none
+
+environment:
+  sdk: ">=2.18.0 <3.0.0"
+
+dependencies:
+  bolt: ^0.1.0-dev.1
+  web_socket_channel: ^2.2.0
+
+dev_dependencies:
+  mocktail: ^0.3.0
+  test: ^1.19.2
+  very_good_analysis: ^3.1.0

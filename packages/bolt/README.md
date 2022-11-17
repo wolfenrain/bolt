@@ -2,7 +2,10 @@
 <img src="https://raw.githubusercontent.com/wolfenrain/bolt/main/assets/bolt_full.png" height="320" alt="bolt logo" />
 </p>
 
+<h1 align="center">Bolt is a network protocol to send and receive strongly typed data objects</h1>
+
 <p align="center">
+<a href="https://github.com/wolfenrain/bolt/tree/main/packages/bolt"><img src="https://img.shields.io/pub/v/bolt.svg" alt="pub package"></a>
 <a href="https://github.com/wolfenrain/bolt/actions"><img src="https://github.com/wolfenrain/bolt/actions/workflows/main.yaml/badge.svg" alt="bolt"></a>
 <a href="https://github.com/wolfenrain/bolt/actions"><img src="https://raw.githubusercontent.com/wolfenrain/bolt/main/coverage_badge.svg" alt="coverage"></a>
 <a href="https://pub.dev/packages/very_good_analysis"><img src="https://img.shields.io/badge/style-very_good_analysis-B22C89.svg" alt="style: very good analysis"></a>
@@ -10,24 +13,6 @@
 </p>
 
 ---
-
-## What is Bolt
-
-Bolt is a network protocol written in Dart to send and receive strongly typed data objects. It is designed to be easy to use and to be as fast as possible.
-
-Bolt is split into two parts, the `BoltClient` and the `BoltServer`. They both implement the `BoltProtocol`, which handles settings up the connection, verifying the connection is secure and sending/receiving data objects.
- 
-Everything is abstracted away in these classes, this means that you can implement your own abstraction on top of Bolt by just extending from `BoltClient` and `BoltServer`.
-
-Bolt works on the principal of shared code, this means that you write common code that is shared between both server and client. 
-
-## Packages
-
-| Package                                                                                                | Pub                                                                                                                        |
-| ------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------- |
-| [bolt](https://github.com/wolfenrain/bolt/tree/main/packages/bolt)                                     | [![pub package](https://img.shields.io/pub/v/bolt.svg)](https://pub.dev/packages/bolt)                                     |
-| [bolt_udp_binding](https://github.com/wolfenrain/bolt/tree/main/packages/bolt_udp_binding)             | [![pub package](https://img.shields.io/pub/v/bolt_udp_binding.svg)](https://pub.dev/packages/bolt_udp_binding)             |
-| [bolt_websocket_binding](https://github.com/wolfenrain/bolt/tree/main/packages/bolt_websocket_binding) | [![pub package](https://img.shields.io/pub/v/bolt_websocket_binding.svg)](https://pub.dev/packages/bolt_websocket_binding) |
 
 ## Documentation 📝
 
@@ -52,7 +37,7 @@ dart pub add bolt
 
 ### Creating a shared Data Object 💿
 
-Create a shared Data Object for the client and server:
+Create a shared `DataObject` for the client and server:
 
 ```dart
 class Ping extends DataObject {
@@ -80,7 +65,7 @@ Define a server, register the data object and listen to messages:
 
 ```dart
 class ExampleServer extends BoltServer {
-  ExampleServer(super.address) {
+  ExampleServer(super.address, {required super.bindings}) {
     Ping.register(registry);
 
     on(_onPinged);
@@ -103,7 +88,7 @@ Define the client, register the data object and implement the `onConnected` meth
 
 ```dart
 class ExampleClient extends BoltClient {
-  ExampleClient(super.address, {super.server}) {
+  ExampleClient(super.address, {super.server, required super.binding}) {
     Ping.register(registry);
   }
 

@@ -72,38 +72,4 @@ const mySimpleClass = _MySimpleClass();
 
 This custom payload type defines how the `MySimpleClass` should be serialized, by using the `mySimpleClass` constant we can now serialize any instance of the `MySimpleClass`.
 
-## Registering a Payload Type
-
-To ensure Bolt is aware of the `MySimpleClass` we need to register the payload type to the `BoltRegistry`. Both the client and server need to register it to be able to serialize the data:
-
-```dart
-...
-
-Future<void> main() async {
-  final client = ExampleClient(...);
-
-  ...
-
-  mySimpleClass.register(client.registry);
-  
-  ...
-}
-```
-
-```dart
-...
-
-Future<void> main() async {
-  final server = ExampleServer(...);
-  
-  ...
-
-  mySimpleClass.register(server.registry);
-  
-  ...
-}
-```
-
-Now whenever Bolt needs to serialize a `DataObject` that has a field of the type `MySimpleClass` it will know which payload type to use and correctly serialize it to binary and back.
-
-**Note**: You can also pass different payload types to `BoltRegistry.register`, to either add or overwrite payload types for certain value types.
+You can now use this payload type whenever you [register a Data Object](data-objects.md#registering-a-data-object)
