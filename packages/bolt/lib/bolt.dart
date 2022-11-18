@@ -2,6 +2,6 @@
 library bolt;
 
 export 'package:binarize/binarize.dart';
-export 'package:mason_logger/mason_logger.dart';
 
 export 'src/protocol/protocol.dart';
+export 'src/utils/logger.dart';
