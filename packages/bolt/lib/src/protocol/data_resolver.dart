@@ -95,5 +95,12 @@ class Argument<T, V> {
   final Symbol? name;
 
   /// Whether this argument is nullable.
-  bool get isNullable => type is PayloadType<V?>;
+  bool get isNullable {
+    try {
+      binarize(Payload.write()..set(type, null));
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
 }
