@@ -24,21 +24,13 @@ class DataResolver<T extends DataObject> {
       final value = argument.from(object);
 
       if (value == null && !argument.isNullable) {
-        throw Exception(
-          'Tried to retrieve field "${argument.name}" of $T, which is not '
-          'nullable but it returned null\n\n'
-          'Did you forget to wrap the payload type in "nullable"?',
-        );
+        throw NonNullableArgument<T>(argument.name!);
       }
 
       writer.set(argument.type, value);
     }
 
-    try {
-      return binarize(writer);
-    } catch (err) {
-      throw Exception('Failed to serialize $T: $err');
-    }
+    return binarize(writer);
   }
 
   /// Deserialize the given [bytes] to a data object.
@@ -55,11 +47,7 @@ class DataResolver<T extends DataObject> {
       }
     }
 
-    try {
-      return Function.apply(factory, positionalArguments, namedArguments) as T;
-    } catch (err) {
-      throw Exception('Failed to deserialize $T: $err');
-    }
+    return Function.apply(factory, positionalArguments, namedArguments) as T;
   }
 }
 
@@ -94,6 +82,13 @@ class Argument<T, V> {
   /// The name of this argument, used when passed as a named argument.
   final Symbol? name;
 
-  /// Whether this argument is nullable.
-  bool get isNullable => type is PayloadType<V?>;
+  /// Whether the [type] of the argument is nullable.
+  bool get isNullable {
+    try {
+      binarize(Payload.write()..set(type, null));
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
 }

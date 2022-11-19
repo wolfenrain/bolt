@@ -5,4 +5,5 @@ export 'bolt_protocol.dart';
 export 'bolt_registry.dart';
 export 'data_object.dart';
 export 'data_resolver.dart';
+export 'exceptions/exceptions.dart';
 export 'packet.dart';
