@@ -18,7 +18,8 @@ abstract class BoltProtocol {
     Logger? logger,
     this.protocolVersion = 1,
     required List<BoltBinding> bindings,
-  })  : _bindings = bindings,
+  })  : assert(bindings.isNotEmpty, 'At least one binding is required'),
+        _bindings = bindings,
         _packetsController = StreamController.broadcast(),
         _acknowledgedPacketController = StreamController.broadcast(),
         logger = logger ?? Logger() {
@@ -60,10 +61,14 @@ abstract class BoltProtocol {
     await Future.wait(_bindings.map((b) => b.bind()));
 
     _packetsSubscription = _rawPackets.listen((packet) {
-      final data = _deserialize(packet.data, address: packet.address);
-      if (data == null) return;
-      logger.detail('Received data: $data from ${packet.address}');
-      _packetsController.add(Packet(packet.address, data));
+      try {
+        final data = _deserialize(packet.data, address: packet.address);
+        if (data == null) return;
+        logger.detail('Received data: $data from ${packet.address}');
+        _packetsController.add(Packet(packet.address, data));
+      } catch (err) {
+        logger.err('Error while receiving packet: $err');
+      }
     });
   }
 
@@ -187,13 +192,16 @@ abstract class BoltProtocol {
     final receivedPackets = _packetsReceivedFromAddress[address]!;
     final sentMessages = _messagesSentToAddress[address]!;
 
-    if (data.length < 1024) {
-      throw Exception('Packet is too small');
+    if (data.length != 1024) {
+      throw Exception('Received packet with invalid length: ${data.length}');
     }
     final reader = Payload.read(data);
 
     // Read header
     final protocolVersion = reader.get(uint16);
+    if (protocolVersion != this.protocolVersion) {
+      throw Exception('Invalid protocol id: $protocolVersion');
+    }
     final crc = reader.get(uint32);
     final receivedSalt = reader.get(int64);
     final packetSequence = reader.get(uint16);
@@ -227,16 +235,12 @@ abstract class BoltProtocol {
     final id = reader.get(uint8);
     final length = reader.get(uint16);
     final bytes = reader.get(Bytes(length));
-
-    if (protocolVersion != this.protocolVersion) {
-      throw Exception('Invalid protocol id: $protocolVersion');
+    if (crc != crc32(bytes)) {
+      throw Exception('CRC32 checksum failed');
     }
 
     // Invalid salt, ignore data
     if (receivedSalt != retrieveSalt(address)) return null;
-    if (crc != crc32(bytes)) {
-      throw Exception('CRC32 checksum failed');
-    }
 
     return registry.getResolverById(id)?.deserialize(bytes);
   }
