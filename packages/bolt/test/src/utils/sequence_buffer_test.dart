@@ -71,8 +71,9 @@ void main() {
     });
 
     test('isAvailable', () {
-      final data1 = sequenceBuffer.insert(0);
-      final data2 = sequenceBuffer.insert(1);
+      sequenceBuffer
+        ..insert(0)
+        ..insert(1);
 
       expect(sequenceBuffer.isAvailable(0), isFalse);
       expect(sequenceBuffer.isAvailable(1), isFalse);

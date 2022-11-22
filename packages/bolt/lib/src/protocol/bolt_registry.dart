@@ -31,15 +31,13 @@ class BoltRegistry {
   /// data.
   void registerObject<T extends DataObject>(int id, DataResolver<T> resolver) {
     if (id < 100) {
-      throw Exception('Data object ID $id is reserved');
+      throw ResolverIdReserved(id);
     }
 
     final existingResolver = getResolverById(id);
     // Only register unique schema ids
     if (existingResolver != null) {
-      throw Exception(
-        '''Data object $T tried to register with id $id, but that id is already registered to ${existingResolver.name}''',
-      );
+      throw ResolverAlreadyRegistered<T>(id, existingResolver);
     }
     _resolvers[id] = resolver;
   }

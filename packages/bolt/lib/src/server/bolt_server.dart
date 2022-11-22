@@ -178,6 +178,7 @@ abstract class BoltServer extends BoltProtocol {
   Future<void> start() async {
     await bind();
 
+    // TODO: doesn't work?
     packets.listen((packet) {
       final connection = _findExistingConnection(packet.address) ??
           Connection(clientSalt: 0, serverSalt: 0, address: packet.address);

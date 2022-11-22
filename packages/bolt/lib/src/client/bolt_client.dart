@@ -227,7 +227,9 @@ abstract class BoltClient extends BoltProtocol {
   }
 
   void _cleanup() {
-    _connectionState = ConnectionState.disconnected;
+    if (_connectionState != ConnectionState.disconnected) {
+      _connectionState = ConnectionState.disconnected;
+    }
     _clientSalt = null;
     _serverSalt = null;
     _connectionId = null;
