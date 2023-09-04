@@ -62,7 +62,7 @@ jobs:
 
     steps:
       - name: 📚 Git Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: 🐦 Dart Format, Analyze and Test (${{ matrix.package }})
         uses: ./.github/actions/dart_package
@@ -83,7 +83,7 @@ jobs:
 
     steps:
       - name: 📚 Git Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: 📊 Verify Pana Score (${{ matrix.package }})
         uses: ./.github/actions/pana
